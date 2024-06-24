@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  web:
+    container_name: django
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app # TODO: Replace 'your_project_name' with your actual Django project directory
+    env_file:
+      - .env
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    depends_on:
+      - postgres-db
+      # - redis
+      # - celery
+
+  postgres-db:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+
+  # redis:
+  #   container_name: redis
+  #   image: "redis:latest"
+
+  # celery:
+  #   container_name: celery
+  #   build: .
+  #   command: celery -A app worker --loglevel=info
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - redis
+  #     - postgres-db
+
+  # celery-beat:
+  #   container_name: celery-beat
+  #   build: .
+  #   command: celery -A app beat --loglevel=info
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - redis
+  #     - postgres-db
+
+volumes:
+  postgres-data:
